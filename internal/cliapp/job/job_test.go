@@ -20,6 +20,7 @@ var (
 
 func TestJob(test *testing.T) {
 	ctx = context.Background()
+	createBad(test)
 	create(test)
 	runBadJob(test)
 	runJob(test)
@@ -47,26 +48,30 @@ func runBadJob(test *testing.T) {
 	job.Run(ctx)
 }
 
-func create(test *testing.T) {
-	test.Logf("create()\n")
+func createBad(test *testing.T) {
+	test.Logf("createBad()\n")
 	{ // Нет taskID
 		job, err := New("", "dfghdfgh")
 		if err == nil {
-			test.Errorf("create(): err==nil")
+			test.Errorf("createBad(): err==nil")
 		}
 		if job != nil {
-			test.Errorf("create(): job!=nil")
+			test.Errorf("createBad(): job!=nil")
 		}
 	}
 	{ // Нет strJob
 		job, err := New("amd", "")
 		if err == nil {
-			test.Errorf("create(): err==nil")
+			test.Errorf("createBad(): err==nil")
 		}
 		if job != nil {
-			test.Errorf("create(): job!=nil")
+			test.Errorf("createBad(): job!=nil")
 		}
 	}
+}
+
+func create(test *testing.T) {
+	test.Logf("create()\n")
 	{ // Нормальное создание
 		job, err = New("amd", strJob)
 		if err != nil {

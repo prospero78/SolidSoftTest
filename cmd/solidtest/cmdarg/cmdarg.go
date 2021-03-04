@@ -50,7 +50,14 @@ func New() *TCmdArg {
 				Name:    "debug",
 				Aliases: []string{"d", "-d", "--debug"},
 				Usage:   "включить режим отладки",
-				Action:  ca.setDebug,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "run",
+						Aliases: []string{"r"},
+						Usage:   "обязательный флаг запуска в режиме отладки",
+					},
+				},
+				Action: ca.setDebug,
 			},
 			{
 				Name:    "run",
@@ -75,11 +82,15 @@ func (sf *TCmdArg) Run() {
 	logrus.Debugf("TCmdArg.Run()")
 }
 
-// Устанавливает режим отладки
+// Запускает работу в  режиме отладки
 func (sf *TCmdArg) setDebug(ctx *cli.Context) error {
 	logrus.Infof("Режим отладки включен")
 	logrus.SetLevel(logrus.DebugLevel)
 	sf.isDebug = true
+	arg := ctx.Args().First()
+	if arg == "run" {
+		return sf.run(ctx)
+	}
 	return nil
 }
 

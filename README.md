@@ -1,2 +1,3 @@
-# SplidSoftTest
+# SolidSoftTest
+
 Тестовое задание

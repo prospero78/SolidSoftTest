@@ -14,4 +14,10 @@ run:
 	cd ./bin && \
 	./solidtest run
 fmt:
+	clear
 	go fmt ./...
+lint:
+	clear
+	golangci-lint run ./...
+	gocritic check
+	gocyclo -top 7 ./cmd ./internal

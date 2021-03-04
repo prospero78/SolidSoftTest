@@ -30,29 +30,31 @@ func New() *TCliApp {
 // Run -- запускает приложение в бесконечном цикле на чтение входного потока
 func (sf *TCliApp) Run() (err error) {
 	logrus.Debugf("TCliApp.Run()")
-	// var id string
 	for taskID, err := sf.readTag(); err == nil; {
-		strJson := ""
-		for { // Фомирование тела задачи
-			strPartJSON, err := sf.std.Read()
-			if err != nil {
-				logrus.WithError(err).Fatalf("TCliApp.Run(): in get body JSON")
-			}
-			if valid.JsonEnd(strPartJSON) {
-				break
-			}
-			strJson += strPartJSON
-		}
-
-		job, err := job.New(taskID, strJson)
-		if err == nil {
+		job, err := job.New(taskID, sf.getJob())
+		if err != nil {
 			break
 		}
-		ctx, cancel := context.WithTimeout(sf.ctx, time.Duration(time.Second*1))
+		ctx, cancel := context.WithTimeout(sf.ctx, time.Second*1)
 		defer cancel()
 		go job.Run(ctx)
 	}
-	return fmt.Errorf("TCliaApp.Run(): err=%w", err)
+	return fmt.Errorf("TCliApp.Run(): err=%w", err)
+}
+
+func (sf *TCliApp) getJob() string {
+	strJson := ""
+	for { // Формирование тела задачи
+		strPartJSON, err := sf.std.Read()
+		if err != nil {
+			logrus.WithError(err).Fatalf("TCliApp.Run(): in get body JSON")
+		}
+		if valid.JsonEnd(strPartJSON) {
+			break
+		}
+		strJson += strPartJSON
+	}
+	return strJson
 }
 
 // Читает открывающий тег на обработку

@@ -75,7 +75,7 @@ func New() *TCmdArg {
 func (sf *TCmdArg) Run() {
 	err := sf.app.Run(os.Args)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.WithError(err).Fatalf("TCmdArg.Run()")
 	}
 	// Если поставить впереди, то до срабатывания обработчика выводиться не будет
 	//  (по умолчанию у logrus -- debug отключен)

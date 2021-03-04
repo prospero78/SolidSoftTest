@@ -3,6 +3,8 @@ package std
 
 import (
 	"fmt"
+	"strings"
+	"sync"
 )
 
 // IStd -- интерфейс к потокобезопасному вводу/выводу
@@ -15,8 +17,9 @@ type IStd interface {
 
 // tStd -- потокобезопасные операции с потоком ввода/вывода
 type tStd struct {
-	chOut chan string // Выходной канал для терминала
-	chErr chan string // Обратный канал для ошибок
+	chWrite chan string // Выходной канал для терминала
+	chErr   chan string // Обратный канал для ошибок
+	block   sync.RWMutex
 }
 
 var (
@@ -29,11 +32,13 @@ func GetStd() IStd {
 }
 
 // Write -- пишет в выходной поток
-func (sf *tStd) Write(strOut string) (err error) {
-	if strOut == "" {
+func (sf *tStd) Write(strWrite string) (err error) {
+	defer sf.block.Unlock()
+	sf.block.Lock()
+	if strWrite == "" {
 		return nil
 	}
-	sf.chOut <- strOut
+	sf.chWrite <- strWrite
 	if strErr := <-sf.chErr; strErr != "" {
 		return fmt.Errorf("tStd.Write(): err=%v", strErr)
 	}
@@ -42,15 +47,25 @@ func (sf *tStd) Write(strOut string) (err error) {
 
 // Read -- читает ввод программы
 func (sf *tStd) Read() (strIn string, err error) {
-	if _, err = fmt.Scanln(&strIn); err != nil {
-		return "", fmt.Errorf("tStd.Read(): err=%w", err)
+	for {
+		if _, err = fmt.Scan(&strIn); err != nil {
+			if strings.Contains(err.Error(), "expected newline") {
+				continue
+			}
+			return "", fmt.Errorf("tStd.Read(): err=%w", err)
+		}
+		if strIn == "" {
+			continue
+		}
+		break
 	}
+
 	return strIn, nil
 }
 
 // В отдельном цикле работает вывод в консоль
 func (sf *tStd) run() {
-	for str := range sf.chOut {
+	for str := range sf.chWrite {
 		if _, err := fmt.Print(str); err != nil {
 			sf.chErr <- fmt.Errorf("tStd.run(): err=%w", err).Error()
 		}
@@ -59,8 +74,8 @@ func (sf *tStd) run() {
 
 func init() {
 	std = &tStd{
-		chOut: make(chan string, 20),
-		chErr: make(chan string, 20),
+		chWrite: make(chan string, 20),
+		chErr:   make(chan string, 20),
 	}
 	go std.run()
 }

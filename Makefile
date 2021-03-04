@@ -21,3 +21,9 @@ lint:
 	golangci-lint run ./...
 	gocritic check
 	gocyclo -top 7 ./cmd ./internal
+run.test:
+	clear
+	go test -mod=vendor -cover -coverprofile=coverage.out ./...
+cover:
+	clear
+	go tool cover -func=coverage.out

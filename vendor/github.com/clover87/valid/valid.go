@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	strSample = "dfglkdsj\"\"\"rljas'wofdlba;as567958-2509\"\"wdugs-9df#^$(*(*&(#*W&!@#$&^<?<?<~~~|\":"
+	strSample = "df?}g<l&k{dsj\"\"\"rlj&as'w}o>fd{lba;as56?&7958-{2<509\"\"wd}u?g{s-&9df#>^$(*(*&(#*W&!@<{#?$&^<?<?<~}~~|\":"
 )
 
 func Validate(str string) error {
@@ -39,4 +39,8 @@ func Validate(str string) error {
 		return fmt.Errorf("invalid tag")
 	}
 	return nil
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }

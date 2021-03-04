@@ -1,8 +1,15 @@
 // Package main -- команда запуска утилиты командной строки на обработку запросов
 package main
 
-import "log"
+import (
+	"github.com/sirupsen/logrus"
+
+	"github.com/prospero78/SolidSoftTest/cmd/solidtest/cmdarg"
+)
 
 func main() {
-	log.Printf("main(): test of SolidSoft\n")
+	cmd := cmdarg.New()
+	cmd.Run()
+
+	logrus.Debugf("main(): test of SolidSoft\n")
 }

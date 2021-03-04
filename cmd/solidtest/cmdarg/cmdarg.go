@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BUILD = "build 0010"
+	BUILD = "build 0026"
 )
 
 // TCmdArg -- операции с аргументами командной строки

@@ -39,7 +39,7 @@ func (sf *tStd) Write(strWrite string) (err error) {
 		return nil
 	}
 	sf.chWrite <- strWrite
-	if strErr := <-sf.chErr; strErr != "" {
+	if strErr := <-sf.chErr; strErr != " " {
 		return fmt.Errorf("tStd.Write(): err=%v", strErr)
 	}
 	return nil
@@ -69,6 +69,7 @@ func (sf *tStd) run() {
 		if _, err := fmt.Print(str); err != nil {
 			sf.chErr <- fmt.Errorf("tStd.run(): err=%w", err).Error()
 		}
+		sf.chErr <- " "
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -49,14 +50,14 @@ func New(taskID, strJob string) (job *TJob, err error) {
 	return job, nil
 }
 
-// Run -- вполняет всю работу по оформлению и отправке ответа (отдельный поток!)
+// Run -- выполняет всю работу по оформлению и отправке ответа (отдельный поток!)
 func (sf *TJob) Run(ctx context.Context) {
 	select {
 	case <-ctx.Done():
 		return
 	default:
 		if err := json.Unmarshal([]byte(sf.job), sf.msg); err != nil {
-			logrus.WithError(err).Fatalf("TCliApp.unmarshalBody(): unmarshal JSON")
+			log.Panicf("TCliApp.unmarshalBody(): unmarshal JSON, err=%v", err)
 		}
 		sf.fillMsg(sf.msg)
 		binJSON, err := json.MarshalIndent(sf, "", "\t")
